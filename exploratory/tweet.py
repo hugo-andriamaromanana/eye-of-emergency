@@ -6,6 +6,8 @@ from enum import Enum
 from functools import cached_property
 from re import findall
 from typing import Any, Sequence
+from pandera.typing import Series
+
 
 from matplotlib.pyplot import (
     bar,
@@ -17,8 +19,8 @@ from matplotlib.pyplot import (
     xticks,
     ylabel,
 )
-from pandas import DataFrame, Series, notna
-from pydantic import BaseModel, Field
+from pandas import DataFrame, notna
+from pydantic import BaseModel
 
 
 def get_attrs(obj: object) -> set[str]:
@@ -64,11 +66,11 @@ _LINK_PATTERN = r'http.+?(?="|<|\s|$)'
 class Tweet(BaseModel):
     """Namespace for handling tweets"""
 
-    id: int = Field(compare=False)
-    keyword: str | None = Field(compare=False)
-    location: str | None = Field(compare=False)
+    id: int
+    keyword: str | None
+    location: str | None
     txt: str
-    target: bool = Field(compare=False)
+    target: bool
 
     @property
     def txt_len(self) -> int:
@@ -146,7 +148,7 @@ class TweetsAnalysis:
         df_none = self.raw_data.where(notna(self.raw_data), None)
         obj_tweets: list[Tweet] = []
         for _, row in df_none.iterrows():
-            tweet = create_tweet(row)
+            tweet = create_tweet(row)  # type: ignore
             obj_tweets.append(tweet)
         return pydantic_to_df(obj_tweets)
 
@@ -172,10 +174,9 @@ class TweetsAnalysis:
     def plot_categorical_property(self, properties: list[str], pivot: str) -> None:
         """Plots the count of the specified property categorized by the pivot."""
         for property in properties:
-            grouped = self.extra_data.groupby([property, pivot]).size().unstack()
-            ax = grouped.plot(kind="bar", stacked=False)
-            ax.set_xlabel(property)
-            ax.set_ylabel("Count")
-            ax.set_title(f"Count of {property} by {pivot}")
+            self.extra_data.groupby([property, pivot]).size().unstack().plot(kind="bar")
+            xlabel(property)
+            ylabel("Count")
+            title(f"Count of {property} by {pivot}")
             xticks(rotation=45)
             show()
