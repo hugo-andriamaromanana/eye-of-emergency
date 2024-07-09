@@ -1,8 +1,9 @@
 """Text processing"""
 
-from contractions import fix
-from string import punctuation
 from re import sub
+from string import punctuation
+
+from contractions import fix
 from spacy import load as spacy_load
 
 

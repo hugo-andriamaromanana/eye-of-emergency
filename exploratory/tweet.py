@@ -6,8 +6,6 @@ from enum import Enum
 from functools import cached_property
 from re import findall
 from typing import Any, Sequence
-from pandera.typing import Series
-
 
 from matplotlib.pyplot import (
     bar,
@@ -20,6 +18,7 @@ from matplotlib.pyplot import (
     ylabel,
 )
 from pandas import DataFrame, notna
+from pandera.typing import Series
 from pydantic import BaseModel
 
 
