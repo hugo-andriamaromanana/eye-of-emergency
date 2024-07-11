@@ -3,8 +3,10 @@
 from re import sub
 from string import punctuation
 
-from contractions import fix
-from spacy import load as spacy_load
+from contractions import fix  # type: ignore
+
+from exploratory.conf.config import CONFIG
+from exploratory.scripts.nlp_cleaning import nlp_clean
 
 
 def rm_punctuations(txt: str) -> str:
@@ -30,25 +32,19 @@ def expand_contractions(txt: str) -> str:
     return str(fix(txt))
 
 
-def lemmatize(txt: str) -> str:
-    """Transform words to their root form"""
-    eng_nlp = spacy_load("en_core_web_sm")
-    doc = eng_nlp(txt)
-    lemmatized_words = [token.lemma_ for token in doc]
-    return " ".join(lemmatized_words)
-
-
-def clean_txt(txt: str) -> str:
+def clean_txt(txt: str) -> list[str]:
     """Cleans the text using the listed specs:
+    - Lowercases and strips the entire string
     - Punctuation removal
     - Number removal
     - Whitespaces removal
     - Expanded context (contractions)
     - Lemmatization (spacy)
     """
-    wo_puncts = rm_punctuations(txt)
+    lower = txt.lower().strip()
+    wo_puncts = rm_punctuations(lower)
     wo_numbers = rm_numbers(wo_puncts)
     wo_whitespaces = rm_whitespaces(wo_numbers)
     expanded = expand_contractions(wo_whitespaces)
-    lemmatized = lemmatize(expanded)
-    return lemmatized
+    npl_cleaned = nlp_clean(CONFIG.NLP_MODEL, expanded)
+    return npl_cleaned
