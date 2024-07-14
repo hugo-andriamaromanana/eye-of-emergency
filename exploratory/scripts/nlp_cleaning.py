@@ -19,10 +19,10 @@ def nlp_clean(model: NlpModel, txt: str) -> list[str]:
     """Cleans the text using an nlp model. See CLEANING_MAP"""
     try:
         cleaned = CLEANING_MAP[model](txt)
+        return cleaned
     except KeyError as key_err:
         logger.critical(f"NLP Model cleaning not implimented:\n{key_err}")
         sys_exit(0)
     except Exception as e:
         logger.warning(f"Failed to clean text with {model} due to:\n{e}")
         sys_exit(0)
-    return cleaned

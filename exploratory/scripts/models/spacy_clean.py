@@ -43,6 +43,7 @@ def spacy_clean(txt: str) -> list[str]:
     """Uses Spacy to process the text through:
     -Lemmatization
     -Stop word removal
+    - Tokenization
     """
     loader = load_spacy_model("en_core_web_sm")
     doc = get_doc_from_loader(txt, loader)
