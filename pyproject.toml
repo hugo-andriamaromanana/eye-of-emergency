@@ -22,6 +22,7 @@ pyarrow = "^16.1.0"
 contractions = "^0.1.73"
 scikit-learn = "^1.5.1"
 nltk = "^3.8.1"
+ipykernel = "^6.29.5"
 
 
 [tool.poetry.group.dev]
@@ -30,6 +31,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 icecream = "*"
+ipykernel = "^6.29.5"
 
 [tool.poetry.group.ci.dependencies]
 black = { version = "*", allow-prereleases = true }

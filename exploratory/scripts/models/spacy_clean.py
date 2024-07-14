@@ -8,6 +8,7 @@ from spacy import load as spacy_load
 from spacy.language import Language
 from spacy.tokens import Doc
 
+
 @cache
 def load_spacy_model(model: str) -> Language:
     """Loads the designed spacy model
@@ -19,7 +20,6 @@ def load_spacy_model(model: str) -> Language:
     except Exception as e:
         logger.critical(f"Couldn't load model due to:\n{e}")
         sys_exit(0)
-    
 
 
 def get_doc_from_loader(txt: str, loader: Language) -> Doc:

@@ -1,16 +1,43 @@
 """Tweet cleaning"""
 
 from functools import cached_property
-from re import findall
+from re import findall, sub
+from string import punctuation
 from typing import Any
 
+from conf.config import CONFIG
+from contractions import fix  # type: ignore
 from pandera.typing import Series
 from pydantic import BaseModel
+from scripts.nlp_cleaning import nlp_clean
 
 _HASHTAG_PATTERN = r"#\S+"
 _USERNAME_PATTERN = r"@\S+"
 _EMAIL_PATTERN = r"\S*@\S*\s?"
 _LINK_PATTERN = r'http.+?(?="|<|\s|$)'
+
+
+def rm_punctuations(txt: str) -> str:
+    """Removes punctuations from a text"""
+    trans_table = str.maketrans("", "", punctuation)
+    text = txt.translate(trans_table)
+    return text
+
+
+def rm_numbers(txt: str) -> str:
+    """Removes numbers from a text"""
+    re = r"\d+"
+    return sub(re, "", txt)
+
+
+def rm_whitespaces(txt: str) -> str:
+    """Removes extra whitespaces, maybe due to typos"""
+    return " ".join(txt.split())
+
+
+def expand_contractions(txt: str) -> str:
+    """Expands contrations from a text"""
+    return str(fix(txt))
 
 
 class Tweet(BaseModel):
@@ -21,6 +48,24 @@ class Tweet(BaseModel):
     location: str | None
     txt: str
     target: bool
+
+    @property
+    def cleaned_txt(self) -> str:
+        """Cleans the text using the listed specs:
+        - Lowercases and strips the entire string
+        - Punctuation removal
+        - Number removal
+        - Whitespaces removal
+        - Expanded context (contractions)
+        - Text Processing (NLP)
+        """
+        lower = self.txt.lower().strip()
+        wo_puncts = rm_punctuations(lower)
+        wo_numbers = rm_numbers(wo_puncts)
+        wo_whitespaces = rm_whitespaces(wo_numbers)
+        expanded = expand_contractions(wo_whitespaces)
+        npl_cleaned = nlp_clean(CONFIG.NLP_MODEL, expanded)
+        return " ".join(npl_cleaned)
 
     @property
     def txt_len(self) -> int:

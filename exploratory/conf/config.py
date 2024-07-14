@@ -14,7 +14,7 @@ class NlpModel(str, Enum):
     NLTK = auto()
 
 
-CONFIG_PATH = Path("exploratory/conf/config.json")
+CONFIG_PATH = Path("conf/config.json")
 
 
 def load_json_from_path(config_path: str | Path) -> Any:
@@ -33,6 +33,7 @@ def load_default_config() -> Config:
     conf = load_json_from_path(CONFIG_PATH)
     config = Config(conf["SPACY_MODEL"], NlpModel[conf["NLP_MODEL"]])
     return config
+
 
 CONFIG: Config = load_default_config()
 

@@ -1,0 +1,4 @@
+{
+    "SPACY_MODEL":"en_core_web_sm",
+    "NLP_MODEL": "NLTK"
+}

@@ -37,9 +37,10 @@ class TweetsAnalysis:
             obj_tweets.append(tweet)
         return ptdf(obj_tweets)
 
-    def plt_word_occs(self) -> None:
+    def plt_word_occs(self, cleaned: bool = False) -> None:
         """Plots the nb of highest occs in a dataframe"""
-        all_text = " ".join([i for i in self.raw_data["text"]])
+        target = "cleaned_txt" if cleaned else "txt" 
+        all_text = " ".join([i for i in self.extra_data[target]])
         words = all_text.split(" ")
         occs = Counter(words)
         del occs[" "]

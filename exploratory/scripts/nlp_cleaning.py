@@ -1,17 +1,20 @@
+"""NLP Cleaning Models"""
+
 from sys import exit as sys_exit
 from typing import Callable, TypeAlias
 
+from conf.config import NlpModel
 from loguru import logger
 
-from conf.config import NlpModel
 from scripts.models.nltk_clean import nltk_clean
-from scripts.models.spacy_clean import spacy_clean
+
+# from scripts.models.spacy_clean import spacy_clean
 
 CleaningFunc: TypeAlias = Callable[[str], list[str]]
 
 CLEANING_MAP: dict[NlpModel, CleaningFunc] = {
     NlpModel.NLTK: nltk_clean,
-    NlpModel.SPACY: spacy_clean,
+    # NlpModel.SPACY: spacy_clean,
 }
 
 
