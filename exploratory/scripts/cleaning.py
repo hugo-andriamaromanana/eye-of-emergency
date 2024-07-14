@@ -5,8 +5,8 @@ from string import punctuation
 
 from contractions import fix  # type: ignore
 
-from exploratory.conf.config import CONFIG
-from exploratory.scripts.nlp_cleaning import nlp_clean
+from conf.config import CONFIG
+from scripts.nlp_cleaning import nlp_clean
 
 
 def rm_punctuations(txt: str) -> str:
@@ -39,7 +39,7 @@ def clean_txt(txt: str) -> list[str]:
     - Number removal
     - Whitespaces removal
     - Expanded context (contractions)
-    - Lemmatization (spacy)
+    - Text Processing (NLP)
     """
     lower = txt.lower().strip()
     wo_puncts = rm_punctuations(lower)

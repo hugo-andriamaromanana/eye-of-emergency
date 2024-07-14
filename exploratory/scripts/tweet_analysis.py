@@ -16,8 +16,8 @@ from matplotlib.pyplot import (
 )
 from pandas import DataFrame, notna
 
-from exploratory.scripts.ptdf import ptdf
-from exploratory.scripts.tweet import Tweet
+from scripts.ptdf import ptdf
+from scripts.tweet import Tweet, create_tweet
 
 
 @dataclass
