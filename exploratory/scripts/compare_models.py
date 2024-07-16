@@ -89,10 +89,9 @@ MODELS = {
 }
 
 
-def compare_models_on_csv(tweet_path: Path | str) -> None:
+def compare_models_on_csv(tweet_path: Path | str) -> DataFrame:
     tweet_data = read_csv(tweet_path)
     vectorized_data = vectorize_txt(tweet_data)
     compare = compare_models_on_df(vectorized_data)
-    print(compare)
-    compare.to_csv("model_comparison.csv")
+    return compare
 
