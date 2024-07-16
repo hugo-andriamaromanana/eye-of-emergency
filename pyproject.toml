@@ -2,7 +2,7 @@
 name = "eye-of-emergency"
 version = "0.1.0"
 description = "ML Project tweet classification"
-authors = ["handriamaromanana <hugo.andriamaromanana@volta-medical.com>"]
+authors = ["handriamaromanana <hugo.andriamaromanana@laplateforme.io>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
