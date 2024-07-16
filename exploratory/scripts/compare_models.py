@@ -9,7 +9,51 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    recall_score,
+    precision_score,
+    confusion_matrix,
+)
+
+
+def compare_models_on_df(tweet_data: DataFrame) -> DataFrame:
+    """Selects all the models in MODELS and compares their results on tweet_data."""
+    VALUES = tweet_data.copy()
+    VALUES.drop(columns=["target"], inplace=True)
+    PREDICT = tweet_data["target"]
+    PREDICT.columns = ["target", "target_null"]
+    PREDICT.drop(columns=["target_null"], inplace=True)
+    X_train, X_test, y_train, y_test = train_test_split(
+        VALUES, PREDICT, test_size=0.3, random_state=42
+    )
+    results = {}
+    for model_name, model_instance in MODELS.items():
+        try:
+            model_instance.fit(X_train, y_train)
+            y_pred = model_instance.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            f1 = f1_score(y_test, y_pred)
+            recall = recall_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred)
+            confusion = confusion_matrix(y_test, y_pred)
+            results[model_name.name] = {
+                "Accuracy": accuracy,
+                "F1 Score": f1,
+                "Recall": recall,
+                "Precision": precision,
+                "Confusion Matrix": confusion,
+            }
+        except Exception as e:
+            print(f"Failed to use {model_name} due to {e}")
+            continue
+    results_df = DataFrame(
+        results.values(),
+        index=results.keys(),
+        columns=["Accuracy", "F1 Score", "Recall", "Precision", "Confusion Matrix"],
+    )
+    return results_df
 
 
 def vectorize_txt(tweet_data: DataFrame) -> DataFrame:
@@ -22,18 +66,19 @@ def vectorize_txt(tweet_data: DataFrame) -> DataFrame:
     tweet_data = concat(
         [tweet_data.reset_index(drop=True), tfidf_df.reset_index(drop=True)], axis=1
     )
-    tweet_data.drop(columns=["cleaned_txt","tokenized_text"], inplace=True)
-    print(tweet_data.columns)
+    tweet_data.drop(columns=["cleaned_txt", "tokenized_text"], inplace=True)
     return tweet_data
 
 
 class Model(str, Enum):
     """Different used models"""
+
     LOGISTIC_REGRESSION = auto()
     DECISION_TREE = auto()
     RANDOM_FOREST = auto()
     SUPPORT_VECTOR_MACHINE = auto()
     XGBOOST = auto()
+
 
 MODELS = {
     Model.LOGISTIC_REGRESSION: LogisticRegression(),
@@ -43,33 +88,11 @@ MODELS = {
     Model.XGBOOST: XGBClassifier(use_label_encoder=False, eval_metric="logloss"),
 }
 
-def compare_models_on_df(tweet_data: DataFrame) -> DataFrame:
-    """Selects all the models in MODELS and compares their results on tweet_data."""
-    VALUES = tweet_data.copy()
-    VALUES.drop(columns=["target"], inplace= True)
-    PREDICT = tweet_data["target"]
-    PREDICT.columns = ["target","target_null"]
-    PREDICT.drop(columns=["target_null"], inplace= True)
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        VALUES, PREDICT, test_size=0.3, random_state=42
-    )
-
-    results = {}
-    for model_name, model_instance in MODELS.items():
-        try:
-            model_instance.fit(X_train, y_train)
-            y_pred = model_instance.predict(X_test)
-            accuracy = accuracy_score(y_test, y_pred)
-            results[model_name.name] = accuracy
-        except Exception as e:
-            print(f"Failed to use {model_name} due to {e}")
-            continue
-    results_df = DataFrame(results.items(), columns=["Model", "Accuracy"])
-    return results_df
 
 def compare_models_on_csv(tweet_path: Path | str) -> None:
     tweet_data = read_csv(tweet_path)
     vectorized_data = vectorize_txt(tweet_data)
     compare = compare_models_on_df(vectorized_data)
     print(compare)
+    compare.to_csv("model_comparison.csv")
+
