@@ -4,6 +4,7 @@ from functools import cached_property
 from re import findall, sub
 from string import punctuation
 from typing import Any
+from unicodedata import normalize
 
 from conf.config import CONFIG
 from contractions import fix  # type: ignore
@@ -15,6 +16,7 @@ _HASHTAG_PATTERN = r"#\S+"
 _USERNAME_PATTERN = r"@\S+"
 _EMAIL_PATTERN = r"\S*@\S*\s?"
 _LINK_PATTERN = r'http.+?(?="|<|\s|$)'
+_UNICODE_PATTERN = r"[^\x00-\x7F]+"
 
 
 def rm_punctuations(txt: str) -> str:
@@ -35,6 +37,14 @@ def rm_whitespaces(txt: str) -> str:
     return " ".join(txt.split())
 
 
+def rm_unicodes(txt: str) -> str:
+    """Removes unicode characters and escape sequences"""
+    cleaned_text = (
+        normalize("NFKD", txt).encode("ascii", "ignore").decode("utf-8", "ignore")
+    )
+    return sub(_UNICODE_PATTERN, "", cleaned_text)
+
+
 def expand_contractions(txt: str) -> str:
     """Expands contrations from a text"""
     return str(fix(txt))
@@ -50,7 +60,7 @@ class Tweet(BaseModel):
     target: bool
 
     @property
-    def cleaned_txt(self) -> str:
+    def tokenized_text(self) -> list[str]:
         """Cleans the text using the listed specs:
         - Lowercases and strips the entire string
         - Punctuation removal
@@ -63,9 +73,15 @@ class Tweet(BaseModel):
         wo_puncts = rm_punctuations(lower)
         wo_numbers = rm_numbers(wo_puncts)
         wo_whitespaces = rm_whitespaces(wo_numbers)
-        expanded = expand_contractions(wo_whitespaces)
-        npl_cleaned = nlp_clean(CONFIG.NLP_MODEL, expanded)
-        return " ".join(npl_cleaned)
+        wo_unicodes = rm_unicodes(wo_whitespaces)
+        expanded = expand_contractions(wo_unicodes)
+        nlp_cleaned = nlp_clean(CONFIG.NLP_MODEL, expanded)
+        return nlp_cleaned
+
+    @property
+    def cleaned_txt(self) -> str:
+        """Concatenates txt with spacespaces as string"""
+        return " ".join(self.tokenized_text)
 
     @property
     def txt_len(self) -> int:

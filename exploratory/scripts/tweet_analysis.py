@@ -39,7 +39,7 @@ class TweetsAnalysis:
 
     def plt_word_occs(self, cleaned: bool = False) -> None:
         """Plots the nb of highest occs in a dataframe"""
-        target = "cleaned_txt" if cleaned else "txt" 
+        target = "cleaned_txt" if cleaned else "txt"
         all_text = " ".join([i for i in self.extra_data[target]])
         words = all_text.split(" ")
         occs = Counter(words)
@@ -59,9 +59,11 @@ class TweetsAnalysis:
 
     def plt_categorical_property(self, properties: list[str], pivot: str) -> None:
         """Plots the count of the specified property categorized by the pivot."""
-        colors = ['red', 'green']
+        colors = ["red", "green"]
         for property in properties:
-            self.extra_data.groupby([property, pivot]).size().unstack().plot(kind="bar",color= colors)
+            self.extra_data.groupby([property, pivot]).size().unstack().plot(
+                kind="bar", color=colors
+            )
             xlabel(property)
             ylabel("Count")
             title(f"Count of {property} by {pivot}")
