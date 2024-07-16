@@ -59,8 +59,9 @@ class TweetsAnalysis:
 
     def plt_categorical_property(self, properties: list[str], pivot: str) -> None:
         """Plots the count of the specified property categorized by the pivot."""
+        colors = ['red', 'green']
         for property in properties:
-            self.extra_data.groupby([property, pivot]).size().unstack().plot(kind="bar")
+            self.extra_data.groupby([property, pivot]).size().unstack().plot(kind="bar",color= colors)
             xlabel(property)
             ylabel("Count")
             title(f"Count of {property} by {pivot}")
